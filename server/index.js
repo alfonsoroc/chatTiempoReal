@@ -4,11 +4,20 @@ import logger from 'morgan'
 import {Server} from 'socket.io'
 import {createServer} from 'node:http'
 
+import dotenv from 'dotenv'
+import { createClient } from '@libsql/client/'
+
 const port = process.env.PORT ?? 3000
 
 const app = express()
 const server = createServer(app)
-const io = new Server(server)
+const io = new Server(server,{
+    connectionStateRecovery:{}
+})
+
+
+
+
 
 io.on('connection', (socket)=>{
     console.log('a user has connected!')
@@ -16,6 +25,11 @@ io.on('connection', (socket)=>{
     socket.on('disconnect',()=>{
         console.log('an user has disconnected')
     })
+
+    socket.on('chat message',(msg)=>{
+        io.emit('chat message',msg)
+    })
+
 })
 
 
