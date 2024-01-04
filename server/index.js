@@ -5,7 +5,9 @@ import {Server} from 'socket.io'
 import {createServer} from 'node:http'
 
 import dotenv from 'dotenv'
-import { createClient } from '@libsql/client/'
+import { createClient } from '@libsql/client'
+
+dotenv.config()
 
 const port = process.env.PORT ?? 3000
 
@@ -15,7 +17,17 @@ const io = new Server(server,{
     connectionStateRecovery:{}
 })
 
+const db = createClient({
+    url:"libsql://present-newton-destine-alfonsoroc.turso.io",
+    authToken:process.env.DB_TOKEN
+})
 
+await db.execute(`
+    CREATE TABLE IF NOT EXISTS messages (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        content TEXT
+    )
+`)
 
 
 
@@ -26,9 +38,23 @@ io.on('connection', (socket)=>{
         console.log('an user has disconnected')
     })
 
-    socket.on('chat message',(msg)=>{
-        io.emit('chat message',msg)
+    socket.on('chat message', async (msg)=>{
+        let result
+        try {
+            result = await db.execute({
+                sql:'INSERT INTO messages (content) VALUES (:msg)',
+                args:{ msg }
+            })
+        } catch (error) {
+            console.error(error)
+            return
+        }
+
+
+        io.emit('chat message',msg,result.lastInsertRowid.toString())
     })
+
+    
 
 })
 
