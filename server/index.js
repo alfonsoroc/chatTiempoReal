@@ -4,11 +4,6 @@ import logger from 'morgan'
 import { Server } from 'socket.io'
 import { createServer } from 'node:http'
 
-import dotenv from 'dotenv'
-import { createClient } from '@libsql/client'
-
-dotenv.config()
-
 const port = process.env.PORT ?? 3000
 
 const app = express()
@@ -17,6 +12,7 @@ const io = new Server(server, {
     connectionStateRecovery: {}
 })
 
+<<<<<<< HEAD
 const db = createClient({
     url: "libsql://present-newton-destine-alfonsoroc.turso.io",
     authToken: process.env.DB_TOKEN
@@ -30,6 +26,8 @@ await db.execute(`
 `)
 
 
+=======
+>>>>>>> parent of 77d2a0a (Merge pull request #5 from alfonsoroc/Desarrollo)
 
 io.on('connection', (socket) => {
     console.log('a user has connected!')
@@ -38,6 +36,7 @@ io.on('connection', (socket) => {
         console.log('an user has disconnected')
     })
 
+<<<<<<< HEAD
     socket.on('chat message', async (msg) => {
         let result
         try {
@@ -56,6 +55,12 @@ io.on('connection', (socket) => {
 
 
 
+=======
+    socket.on('chat message',(msg)=>{
+        io.emit('chat message',msg)
+    })
+
+>>>>>>> parent of 77d2a0a (Merge pull request #5 from alfonsoroc/Desarrollo)
 })
 
 
